@@ -35,6 +35,7 @@ subroutine  MTT1D(matrixA, numGridPoints, diffusionCoefficient, spaceStepSize, a
  ! Inverse of matrix is obtained and the matrix is created on the second line below
  call inverse(EigInv, EigenVectors, numGridPoints)
 
+! Compute A = H^{-1}Lambda H.
  matrixA = matmul(EigenVectors, matmul(EigenValues, EigInv))
  
  deallocate(EigenVectors)
