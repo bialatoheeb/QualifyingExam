@@ -37,25 +37,28 @@ subroutine  MTT2D(matrixA, numGridPoints, diffusionCoefficient, spaceStepSize, a
      enddo
   enddo
  
+  ! Reshape the matrix to matrixSize
   EigenVectors = reshape(EigenVects, (/ matrixSize, matrixSize /))
   
+  ! Eigenvalues of the fractional Laplcian in two dimensions
   do j=0, numGridPoints - 1
      do i= 0, numGridPoints-1
         EigenVals(i+1, j+1) = (4*(cos(i*Pi/(2*(numGridPoints-1)))**2.0 +  cos(j*Pi/(2*(numGridPoints-1)))**2.0))**(alpha/2.0)
      end do
   enddo
 
+  ! Introduce the diffusion coefficient and the space step-size in the m atrix
   EigenVals = Coeff*EigenVals
   EigVals = reshape(EigenVals, (/ matrixSize, NRHS/))
 
-  
+  ! Diagonalize the eigenvalues
   EigenValues = 0
   forall (i=1:matrixSize) EigenValues(i,i) = EigVals(i,NRHS)
  
- ! Inverse of matrix is obtained and the matrix is created on the second line below
+  ! Inverse of matrix is obtained and the matrix is created on the second line below
   call inverse(EigInv, EigenVectors, matrixSize)
 
-  
+  ! Compute A = H^{-1}Lambda H.
   matrixA = matmul(EigInv, matmul(EigenValues, EigenVectors))
   matrixA = transpose(matrixA)
 
