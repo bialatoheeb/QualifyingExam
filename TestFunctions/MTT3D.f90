@@ -1,7 +1,8 @@
 ! This subroutine uses the matrix Transfer technique to build
-! the matrix A^(alpha/2) arising from the semidiscretization of the space-fractional equation.
-! The matrix is constructed from the eigenvaliues and eigenvectors of the matrix A
-! This is with Neumann boundary conditions
+! the matrix A^(alpha/2) arising from the semidiscretization of the three-dimensional space-fractional 
+! equation with Neumann boundary conditions. The matrix is constructed via the diagonalization 
+! of the standard Laplacian. In particular A^(\alpha/2) = H^{-1}Lambda H.
+
 subroutine  MTT3D(matrixA, numGridPoints, diffusionCoefficient, spaceStepSize, alpha)
   implicit none
   integer:: i, j, k, l, m, n, numGridPoints, matrixSize, NRHS
@@ -27,7 +28,7 @@ subroutine  MTT3D(matrixA, numGridPoints, diffusionCoefficient, spaceStepSize, a
   
   Coeff =  diffusionCoefficient/(spaceStepSize**alpha)
 
-  !Eigenvalues and Eigenvectors of the matrix
+  ! Constructing the matrix  P form which H = P^T is obtained 
   do n = 0, numGridPoints - 1
      do m = 0, numGridPoints - 1
         do i = 0, numGridPoints - 1
@@ -43,8 +44,10 @@ subroutine  MTT3D(matrixA, numGridPoints, diffusionCoefficient, spaceStepSize, a
      enddo
   enddo
  
+  ! Reshape the matrix to matrixSize
   EigenVectors = reshape(EigenVects, (/ matrixSize, matrixSize /))
 
+ ! Eigenvalues of the fractional Laplcian in three dimensions
   do j=0, numGridPoints - 1
      do i= 0, numGridPoints - 1
         do k=0, numGridPoints - 1
@@ -54,16 +57,18 @@ subroutine  MTT3D(matrixA, numGridPoints, diffusionCoefficient, spaceStepSize, a
      end do
   enddo
 
+  ! Introduce the diffusion coefficient and the space step-size in the m atrix
   EigenVals = Coeff*EigenVals
   EigVals = reshape(EigenVals, (/ matrixSize, NRHS/))
 
-  
+  ! Diagonalize the eigenvalues
   EigenValues = 0
   forall (i=1:matrixSize) EigenValues(i,i) = EigVals(i,NRHS)
   
- ! Inverse of matrix is obtained and the matrix is created on the second line below
+  ! Inverse of matrix is obtained 
   call inverse(EigInv, EigenVectors, matrixSize)
   
+  ! Compute A = H^{-1}Lambda H.
   matrixA = matmul(EigInv, matmul(EigenValues, EigenVectors))
   matrixA = transpose(matrixA)
 
