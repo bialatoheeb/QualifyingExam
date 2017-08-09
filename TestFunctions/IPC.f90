@@ -1,5 +1,5 @@
   ! This subroutine solves a nonlinear system of dfferential equations with
-  ! the linearly implicit predictor-corrector Crank-Nicolson scheme  
+  ! the linearly implicit predictor-corrector scheme  
 
 subroutine  IPC(reshapeUvec, reshapeVvec, matrixAu, matrixAv, num, dt, numTimeSteps, A, B, numDimension)
     implicit none
@@ -24,6 +24,8 @@ subroutine  IPC(reshapeUvec, reshapeVvec, matrixAu, matrixAv, num, dt, numTimeSt
     matrixSize = num**numDimension
     LDA = max(1, matrixSize)
     LDB = max(1, matrixSize)
+    
+    ! Allocation of arrays for use in the sequel
     allocate(AuMatrix(matrixSize, matrixSize))
     allocate(AvMatrix(matrixSize, matrixSize))
     allocate(ASolve(matrixSize, matrixSize))
@@ -41,8 +43,6 @@ subroutine  IPC(reshapeUvec, reshapeVvec, matrixAu, matrixAv, num, dt, numTimeSt
     IdentityMatrix = 0
     forall(j=1:matrixSize) IdentityMatrix(j,j) = 1
 
-    ! ZGETRF computes the LU factorization of a general
-    ! complex matrix with double precison    
     AuMatrix = cmplx(dt*matrixAu - c*IdentityMatrix)
     AvMatrix = cmplx(dt*matrixAv - c*IdentityMatrix)
 
@@ -64,7 +64,7 @@ subroutine  IPC(reshapeUvec, reshapeVvec, matrixAu, matrixAv, num, dt, numTimeSt
     end if
     
 
-    ! Implementation of the IPC-CN Scheme
+    ! Implementation of the IPC Scheme
     j = 0
     int = 20
 
@@ -76,7 +76,7 @@ subroutine  IPC(reshapeUvec, reshapeVvec, matrixAu, matrixAv, num, dt, numTimeSt
        YUvec = w1*reshapeUvec + w3*dt*FUvec
        YVvec = w1*reshapeVvec + w3*dt*FVvec
        
-       ! ZGETRS solves the system AX = b using the LU factorization
+       ! ZGETRS solves the system AX = b using the LU factorization obtained
        ! by the ZGETRF (double precision)
        ASolve = AuMatrix
        call ZGETRS(TRANS, matrixSize, NRHS, ASolve, LDA, IPIV, YUvec, LDB, info)       
@@ -124,7 +124,7 @@ subroutine  IPC(reshapeUvec, reshapeVvec, matrixAu, matrixAv, num, dt, numTimeSt
        ! Corrected and Final Solution at time i*dt
        reshapeUvec = AUvec + 2*real(YUvec)
        reshapeVvec = AVvec + 2*real(YVvec)
-       
+      
        j = j + 1       
        if (mod(j, int) .eq. 0) then
           write(*,'(A,I5,A,I5,A)') 'Done with  ', j, ' out of ', numTimeSteps, ' iterations'
