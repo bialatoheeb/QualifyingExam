@@ -1,6 +1,6 @@
 ! This subroutine generates 2D grid coordinates returnX and returnY based
 ! on the coordinates of th vectors X and Y. returnX and returnY are matrices 
-! sizes length(Y) by length(X).
+! of sizes length(Y) by length(X).
 
 subroutine  meshgrid2(returnX, returnY, X, Y, sizeX, sizeY)
   implicit none
