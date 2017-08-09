@@ -1,7 +1,8 @@
 ! This subroutine uses the matrix Transfer technique to build
-! the matrix A^(alpha/2) arising from the semidiscretization of the space-fractional equation.
-! The matrix is constructed from the eigenvaliues and eigenvectors of the matrix A
-! This is with Neumann boundary conditions
+! the matrix A^(alpha/2) arising from the semidiscretization of the two-dimensional space-fractional 
+! equation with Neumann boundary conditions. The matrix is constructed via the diagonalization 
+! of the standard Laplacian. In particular A^(\alpha/2) = H^{-1}Lambda H.
+
 subroutine  MTT2D(matrixA, numGridPoints, diffusionCoefficient, spaceStepSize, alpha)
   implicit none
   integer:: i, j, k, l, numGridPoints, matrixSize, NRHS
@@ -25,7 +26,7 @@ subroutine  MTT2D(matrixA, numGridPoints, diffusionCoefficient, spaceStepSize, a
   
   Coeff =  diffusionCoefficient/(spaceStepSize**alpha)
 
-  !Eigenvalues and Eigenvectors of the matrix
+  !Diagonalization of the matrix
   do i = 0, numGridPoints-1
      do j = 0, numGridPoints-1
         do k = 0, numGridPoints-1
